@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Lista de Compras</string>
+
+    <!-- Main Activity -->
+    <string name="adicionar_itens">Adicionar Itens</string>
+
+    <!-- Cadastro Activity -->
+    <string name="cadastrar_produto">Cadastrar/Atualizar Produto</string>
+    <string name="inserir">inserir</string>
+    <string name="atualizar">salvar alterações</string>
+
+</resources>
