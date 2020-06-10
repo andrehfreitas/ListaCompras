@@ -1,20 +1,15 @@
 package br.edu.ifsp.scl.listadecompras
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
-import org.jetbrains.anko.db.delete
-import org.jetbrains.anko.db.parseList
-import org.jetbrains.anko.db.rowParser
-import org.jetbrains.anko.db.select
 
 class MainActivity : AppCompatActivity() {
-
+    lateinit var database: ListaComprasDatabase
     private lateinit var listaProdutos: List<Produto>
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,56 +18,36 @@ class MainActivity : AppCompatActivity() {
 
         //Implementação do adaptador do ListView
         val produtosAdapter = ProdutoAdapter(this)
-
         //Definindo o adaptador da lista
         list_view_produtos.adapter = produtosAdapter
+
+        database = ListaComprasDatabase.getInstance(this)
     }
 
 
     @SuppressLint("SetTextI18n")
     override fun onResume() {
         super.onResume()
-
-        // Referência ao adapter criado em onCreate
         val adapter = list_view_produtos.adapter as ProdutoAdapter
 
-        database.use {
-            // Efetuando a consulta dos registros da tabela produtos no banco de dados
-            select("produtos").exec {
-                // Criando o parser que montará o objeto Produto
-                val parser = rowParser {
-                    //Colunas do banco de dados
-                    id: Int, nome: String, quantidade: Int, valor: Double, foto: ByteArray? ->
-                        // Montagem do objeto Produto com as colunas do banco de dados
-                        Produto(id, nome, quantidade, valor, foto?.toBitmap())
-                }
-
-                // Criando a lista de produtos com os dados do banco
-                listaProdutos = parseList(parser)
-
-                // Limpa adapter para não duplicar itens na lista
-                adapter.clear()
-
-                // Adiciona itens cadastrados na lista
-                adapter.addAll(listaProdutos)
-            }
-        }
-
-        // Atualiza o valor total da lista, MAS NÃO ESTÁ ATUALIZANDO NO MOMENTO DA REMOÇÃO
+        getProdutos(adapter)
         atualizaTotal(listaProdutos)
-
-        // Função chamada quando botão Adicionar Itens é clicado
-        inserirProduto()
-
-        // Função ouvinte do click longo em um item da lista para remoção
-        removerProduto(this, adapter)
-
-        // Função ouvinte do click em um item da lista para edição
+        cadastrarProduto()
+        removerProduto(adapter)
         editarProduto(adapter)
     }
 
+
+    fun getProdutos(adapter: ProdutoAdapter) {
+        val result = database.DAO().getAllProdutos()
+        listaProdutos = result
+        adapter.clear()
+        adapter.addAll(listaProdutos)
+    }
+
+
     // Abre Activity CadastroActivity para cadastrar um novo produto
-    private fun inserirProduto(){
+    private fun cadastrarProduto(){
         btn_adicionar.setOnClickListener {
             val i = ""
             val intent = CadastroActivity.getStartIntent(this, i, i, i, i)
@@ -80,17 +55,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
     // Remove um produto após clique longo sobre o mesmo
-    private fun removerProduto(context: Context, adapter: ProdutoAdapter){
+    private fun removerProduto(adapter: ProdutoAdapter){
         list_view_produtos.setOnItemLongClickListener { _: AdapterView<*>, _: View, position: Int, _: Long ->
             val item = adapter.getItem(position)
             adapter.remove(item)
-
-            database.use {
-                delete("produtos", "id = {id}", "id" to item!!.id)
-            }
-
-            Toast.makeText(context, "Produto apagado com sucesso", Toast.LENGTH_LONG).show()
+            database.DAO().deleteProduto(item!!)
+            Toast.makeText(this, "Produto apagado com sucesso", Toast.LENGTH_LONG).show()
 
             // Retorno indicando que o click longo foi realizado com sucesso
             true
@@ -98,6 +70,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    // Ao clicar em um item da lista abre o formulário para alteração dos dados
     private fun editarProduto(adapter: ProdutoAdapter){
         list_view_produtos.setOnItemClickListener { adapterView: AdapterView<*>, view1: View, position: Int, l: Long ->
             val item = adapter.getItem(position)
@@ -107,6 +80,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    // Atualiza o valor total da lista, MAS NÃO ESTÁ ATUALIZANDO NO MOMENTO DA REMOÇÃO
     @SuppressLint("SetTextI18n")
     private fun atualizaTotal(listaProdutos:List<Produto>){
         val soma = listaProdutos.sumByDouble {

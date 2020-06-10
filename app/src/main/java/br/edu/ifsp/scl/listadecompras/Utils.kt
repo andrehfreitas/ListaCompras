@@ -12,7 +12,7 @@ fun Bitmap.toByteArray(): ByteArray{
     val stream = ByteArrayOutputStream()
 
     //Comprimindo a imagem
-    this.compress(android.graphics.Bitmap.CompressFormat.PNG, 0, stream)
+    this.compress(Bitmap.CompressFormat.PNG, 0, stream)
 
     // Transformando em um array de caracteres
     return stream.toByteArray()
@@ -25,7 +25,7 @@ fun ByteArray.toBitmap(): Bitmap{
 }
 
 
-// Função de extensão para formatar um número no formato brasileiro
+// Função para formatar um número no formato brasileiro
 fun formatoNumeroBrasileiro (numero: Double): String {
     val f = NumberFormat.getCurrencyInstance(Locale("pt", "br"))
     return f.format(numero)

@@ -26,7 +26,7 @@ class ProdutoAdapter(context: MainActivity): ArrayAdapter<Produto>(context, 0) {
         valorProduto.text = formatoNumeroBrasileiro(item.valor)
 
         if (item.foto != null){
-            imgProduto.setImageBitmap(item.foto)
+            imgProduto.setImageBitmap(item.foto.toBitmap())
         }
 
         return v

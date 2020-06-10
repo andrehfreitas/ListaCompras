@@ -1,41 +1,29 @@
 package br.edu.ifsp.scl.listadecompras
 
 import android.content.Context
-import android.database.sqlite.SQLiteDatabase
-import org.jetbrains.anko.db.*
+import androidx.room.Database
+import androidx.room.Room
+import androidx.room.RoomDatabase
 
-class ListaComprasDatabase(context: Context): ManagedSQLiteOpenHelper(ctx = context, name = "listaCompras.db", version = 1) {
+@Database(entities = [Produto::class], version = 1)
+abstract class ListaComprasDatabase: RoomDatabase() {
+
+    abstract fun DAO(): ListaComprasDAO
 
     // Singleton da classe
     companion object{
-        private var instance: ListaComprasDatabase? = null
+        private var INSTANCE: ListaComprasDatabase? = null
 
+        @Synchronized
         fun getInstance(context: Context): ListaComprasDatabase{
-            if (instance == null) instance = ListaComprasDatabase(context.applicationContext)
-            return instance!!
+            if (INSTANCE == null){
+                INSTANCE = Room.databaseBuilder(
+                    context.applicationContext,
+                    ListaComprasDatabase::class.java,
+                    "listaCompras2.db").allowMainThreadQueries().build()
+            }
+            return INSTANCE as ListaComprasDatabase
         }
     }
 
-
-    override fun onCreate(db: SQLiteDatabase?) {
-        // Criação da tabela de Produtos
-        db?.createTable("produtos", true,
-              "id" to INTEGER + PRIMARY_KEY + UNIQUE,
-                       "nome" to TEXT,
-                       "quantidade" to INTEGER,
-                       "valor" to REAL,
-                       "foto" to BLOB)
-
-    }
-
-
-    override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-        TODO("Not yet implemented")
-    }
-
 }
-
-
-//Acesso à propriedade pelo contexto
-val Context.database: ListaComprasDatabase
-    get() = ListaComprasDatabase.getInstance(applicationContext)
