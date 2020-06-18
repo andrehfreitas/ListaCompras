@@ -23,10 +23,3 @@ fun Bitmap.toByteArray(): ByteArray{
 fun ByteArray.toBitmap(): Bitmap{
     return BitmapFactory.decodeByteArray(this, 0, this.size)
 }
-
-
-// Função para formatar um número no formato brasileiro
-fun formatoNumeroBrasileiro (numero: Double): String {
-    val f = NumberFormat.getCurrencyInstance(Locale("pt", "br"))
-    return f.format(numero)
-}

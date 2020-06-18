@@ -1,4 +1,4 @@
-package br.edu.ifsp.scl.listadecompras
+package br.edu.ifsp.scl.listadecompras.view
 
 import android.app.Activity
 import android.content.Context
@@ -8,21 +8,35 @@ import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
+import br.edu.ifsp.scl.listadecompras.viewmodel.ListaComprasViewModel
+import br.edu.ifsp.scl.listadecompras.R
+import br.edu.ifsp.scl.listadecompras.data.database.ListaComprasDatabase
+import br.edu.ifsp.scl.listadecompras.data.database.ListaComprasRepository
+import br.edu.ifsp.scl.listadecompras.data.model.Produto
+import br.edu.ifsp.scl.listadecompras.toByteArray
 import kotlinx.android.synthetic.main.activity_cadastro.*
 
 class CadastroActivity : AppCompatActivity() {
 
     val COD_IMAGE = 101
     var imageBitmap: Bitmap? = null
-    private lateinit var database: ListaComprasDatabase
-    private lateinit var produto: Produto
+    lateinit var database: ListaComprasDatabase
+    private lateinit var listaComprasViewModel: ListaComprasViewModel
+    private lateinit var listaComprasRepository: ListaComprasRepository
+
 
     @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_cadastro)
 
+        // Inicialização do módulo Banco de Dados
         database = ListaComprasDatabase.getInstance(this)
+        listaComprasRepository = ListaComprasRepository(database.DAO())
+        val factory = ListaComprasViewModel.ViewModelFactory(listaComprasRepository)
+        listaComprasViewModel = ViewModelProvider(this, factory).get(ListaComprasViewModel::class.java)
+
 
         txt_nome.text.append(intent.getStringExtra(EXTRA_NOME))
         txt_qtd.text.append(intent.getStringExtra(EXTRA_QUANTIDADE))
@@ -52,8 +66,13 @@ class CadastroActivity : AppCompatActivity() {
 
             // Verificando a digitação dos dados pelo usuário
             if (nome.isNotEmpty() && qtde.isNotEmpty() && valor.isNotEmpty()){
-                produto = Produto(nome = nome, qtde = qtde.toInt(), valor = valor.toDouble(), foto = foto?.toByteArray())
-                database.DAO().insertProduto(produto)
+                val produto = Produto(
+                    nome = nome,
+                    qtde = qtde.toInt(),
+                    valor = valor.toDouble(),
+                    foto = foto?.toByteArray()
+                )
+                listaComprasViewModel.insertProduto(produto)
                 Toast.makeText(context, "Produto inserido com sucesso: ", Toast.LENGTH_LONG).show()
                 limpaCadastroActivity()
             } else {
@@ -79,7 +98,14 @@ class CadastroActivity : AppCompatActivity() {
 
             // Verificando a digitação dos dados pelo usuário
             if (nome.isNotEmpty() && qtde.isNotEmpty() && valor.isNotEmpty()){
-                database.DAO().updateProduto(id, nome, qtde.toInt(), valor.toDouble(), foto?.toByteArray())
+                val produto = Produto(
+                    id,
+                    nome = nome,
+                    qtde = qtde.toInt(),
+                    valor = valor.toDouble(),
+                    foto = foto?.toByteArray()
+                )
+                listaComprasViewModel.updateProduto(produto)
                 Toast.makeText(context, "Produto atualizado com sucesso", Toast.LENGTH_LONG).show()
                 limpaCadastroActivity()
             } else {
@@ -93,6 +119,7 @@ class CadastroActivity : AppCompatActivity() {
         }
     }
 
+
     // Limpa os campos da Activity de Cadastro
     private fun limpaCadastroActivity(){
         txt_nome.text.clear()
@@ -100,6 +127,7 @@ class CadastroActivity : AppCompatActivity() {
         txt_valor.text.clear()
         img_foto_produto.setImageResource(android.R.drawable.ic_menu_camera)
     }
+
 
     // Abre a galeria do dispositivo para escolha e inserção de uma imagem
     private fun abrirGaleria(){

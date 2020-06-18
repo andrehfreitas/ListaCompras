@@ -1,4 +1,4 @@
-package br.edu.ifsp.scl.listadecompras
+package br.edu.ifsp.scl.listadecompras.data.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

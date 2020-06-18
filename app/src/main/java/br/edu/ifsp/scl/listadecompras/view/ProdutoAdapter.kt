@@ -1,4 +1,4 @@
-package br.edu.ifsp.scl.listadecompras
+package br.edu.ifsp.scl.listadecompras.view
 
 import android.view.LayoutInflater
 import android.view.View
@@ -6,6 +6,11 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
+import br.edu.ifsp.scl.listadecompras.R
+import br.edu.ifsp.scl.listadecompras.data.model.Produto
+import br.edu.ifsp.scl.listadecompras.toBitmap
+import java.text.NumberFormat
+import java.util.*
 
 class ProdutoAdapter(context: MainActivity): ArrayAdapter<Produto>(context, 0) {
 
@@ -23,7 +28,8 @@ class ProdutoAdapter(context: MainActivity): ArrayAdapter<Produto>(context, 0) {
 
         nomeProduto.text = item!!.nome
         qtdeProduto.text = item.qtde.toString()
-        valorProduto.text = formatoNumeroBrasileiro(item.valor)
+        val f = NumberFormat.getCurrencyInstance(Locale("pt", "br"))
+        valorProduto.text = f.format(item.valor)
 
         if (item.foto != null){
             imgProduto.setImageBitmap(item.foto.toBitmap())
