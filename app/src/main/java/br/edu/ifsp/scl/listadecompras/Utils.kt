@@ -3,8 +3,6 @@ package br.edu.ifsp.scl.listadecompras
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import java.io.ByteArrayOutputStream
-import java.text.NumberFormat
-import java.util.*
 
 
 // Função de extensão para converter um Bitmap em um ByteArray

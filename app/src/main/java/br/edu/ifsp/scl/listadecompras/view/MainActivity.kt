@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    // Abre Activity CadastroActivity para cadastrar um novo produto
+    // Busca a Intent de CadastroActivity para abri-lá e cadastrar um novo produto
     private fun cadastrarProduto(){
         btn_adicionar.setOnClickListener {
             val i = ""
@@ -68,7 +68,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    // Ao clicar em um item da lista abre o formulário para alteração dos dados
+    // Busca a Intent de CadastroActivity para abri-lá e alterar os dados do produto selecionado na lista
     private fun editarProduto(adapter: ProdutoAdapter){
         list_view_produtos.setOnItemClickListener { adapterView: AdapterView<*>, view1: View, position: Int, l: Long ->
             val item = adapter.getItem(position)
@@ -78,7 +78,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    // Remove um produto após clique longo sobre o mesmo
+    // Apaga um produto da lista e do banco de dados após um clique longo sobre o mesmo
     private fun removerProduto(adapter: ProdutoAdapter){
         list_view_produtos.setOnItemLongClickListener { _: AdapterView<*>, _: View, position: Int, _: Long ->
             val item = adapter.getItem(position)
@@ -91,7 +91,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    // Atualiza o valor total da lista e seta no textview txt_total
+    // Atualiza o valor total dos produtos que estão na lista e exibe o valor no textview txt_total
     @SuppressLint("SetTextI18n")
     private fun atualizaTotal(listaAtualizada: List<Produto>){
         val soma = listaAtualizada.sumByDouble {
